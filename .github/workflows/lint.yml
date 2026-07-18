@@ -10,11 +10,11 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 24
+          # Cache removed because lockfile is missing
           
       - name: Install Dependencies
-        run: npm install 
+        run: npm install
         
       - name: Run Linter
         run: npm run lint
