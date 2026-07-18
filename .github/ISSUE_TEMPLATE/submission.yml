@@ -1,0 +1,63 @@
+name: Project Submission
+description: Submit an app, sneak peek, or tool to the registry.
+title: "[SUBMISSION]: "
+labels: ["submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Socioprogram Registry Protocol
+        Ensure your submission complies with our anti-algorithmic governance. All entries are subject to review.
+  
+  - type: input
+    id: project-name
+    attributes:
+      label: Project Name
+      placeholder: "e.g., FModLoader"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: entry-type
+    attributes:
+      label: Entry Type
+      options:
+        - Tooling
+        - App
+        - Sneak Peek
+    validations:
+      required: true
+
+  - type: input
+    id: identity
+    attributes:
+      label: Identity
+      description: "GitHub handle, organization, or project URL."
+      placeholder: "@NexusTribarixa"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: "Explain the technical merits and objective of this project."
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: Source/Live Link
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: governance-check
+    attributes:
+      label: Governance Audit
+      options:
+        - label: This submission contains zero advertisements or tracking pixels.
+          required: true
+        - label: This submission aligns with the anti-algorithmic registry model.
+          required: true
