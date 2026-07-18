@@ -15,7 +15,7 @@ For years, the repository `OWoodfl1nt/people_finder` existed as a hollow artifac
 ## 🏗️ Core Architecture
 Socioprogram is not a social network for hometown photos. It is a technical exchange dedicated to:
 *   **Systems Architecture:** Building robust, anti-algorithm digital environments.
-*   **Tooling:** Development of functional utilities (including `fModLoader` and global font-scaling engines).
+*   **Tooling:** Development of functional utilities.
 *   **Infrastructure:** A clean-room approach to software development, prioritizing logic over visual bloat.
 
 ---
