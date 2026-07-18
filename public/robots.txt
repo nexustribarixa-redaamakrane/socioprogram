@@ -1,0 +1,22 @@
+# Socioprogram // System Governance
+# Disallow content scrapers, ad-bots, and administrative API endpoints
+# Allow human discovery of the registry
+
+User-agent: *
+Disallow: /api/
+Disallow: /cgi-bin/
+Disallow: /admin/
+
+# Block ad-networks and predatory scrapers
+User-agent: AdsBot-Google
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# Allow indexing for search visibility
+Sitemap: https://nexustribarixa-redaamakrane.github.io/socioprogram/sitemap.xml
+Allow: /
