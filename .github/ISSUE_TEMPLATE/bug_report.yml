@@ -1,0 +1,59 @@
+name: System Bug Report
+description: Report a technical failure within the Socioprogram infrastructure.
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Diagnostic Protocol
+        Please provide sufficient technical data to allow for reproduction of the issue.
+  
+  - type: input
+    id: component
+    attributes:
+      label: Affected Component
+      placeholder: "e.g., Feed Engine, Aggregator, UI/CSS"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (System Offline)
+        - Major (Functionality Impaired)
+        - Minor (Cosmetic/Glitch)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: "Explain what is failing and the expected behavior."
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction Steps
+      description: "How to trigger this bug step-by-step."
+      placeholder: |
+        1. Open [Component]
+        2. Execute [Action]
+        3. Observe [Failure]
+      render: bash
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: "Browser, OS, or Device used when the bug was observed."
+      placeholder: "e.g., Firefox 128 / Arch Linux"
+    validations:
+      required: true
