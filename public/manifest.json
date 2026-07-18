@@ -1,0 +1,19 @@
+{
+  "name": "Socioprogram",
+  "short_name": "SocioProg",
+  "description": "A high-signal, anti-algorithmic engineering exchange.",
+  "start_url": "/socioprogram/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#58a6ff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["developer", "tools"],
+  "prefer_related_applications": false
+}
