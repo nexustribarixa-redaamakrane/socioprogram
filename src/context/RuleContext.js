@@ -2,8 +2,8 @@ import { createContext } from 'react';
 
 export const RuleContext = createContext({
     sources: [
-        { handle: 'r/programming', type: 'subreddit' },
-        { handle: 'google', type: 'github' } // Example source
+        { handle: 'programming', type: 'subreddit' },
+        { handle: 'google', type: 'github' }
     ],
     governance: {
         enforceChronological: true,

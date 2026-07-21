@@ -1,7 +1,7 @@
 import js from "@eslint/js";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
-import globals from "globals"; // Add this import
+import globals from "globals";
 
 export default [
   {
@@ -11,7 +11,7 @@ export default [
   {
     languageOptions: {
       globals: {
-        ...globals.browser, // This tells ESLint "Assume fetch, console, etc., exist"
+        ...globals.browser,
       },
     },
     plugins: {
@@ -21,6 +21,7 @@ export default [
     rules: {
       "react/react-in-jsx-scope": "off",
       "no-unused-vars": "warn",
+      "react-hooks/exhaustive-deps": "warn",
     },
     settings: {
       react: { version: "detect" },
