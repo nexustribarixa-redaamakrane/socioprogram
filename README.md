@@ -53,6 +53,7 @@ socioprogram/
 ├── app.py                 # Flask app factory + entry point
 ├── config.py              # Configuration (dev/prod)
 ├── requirements.txt       # Python dependencies
+├── LICENSE                # MIT License
 ├── models/                # SQLAlchemy models
 │   ├── user.py            # User + UserOAuth
 │   ├── post.py            # Post + PostImage
@@ -109,4 +110,4 @@ Rules are seeded automatically on first run and displayed on the public `/mod/ru
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
