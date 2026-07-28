@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Feed — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="feed-header">
+    <h1 class="feed-header__title">Feed</h1>
+    <div class="feed-tabs">
+        <a href="?filter=all" class="feed-tab {% if filter_type == 'all' %}feed-tab--active{% endif %}">All</a>
+        <a href="?filter=projects" class="feed-tab {% if filter_type == 'projects' %}feed-tab--active{% endif %}">Projects</a>
+        <a href="?filter=snippets" class="feed-tab {% if filter_type == 'snippets' %}feed-tab--active{% endif %}">Snippets</a>
+        <a href="?filter=discussions" class="feed-tab {% if filter_type == 'discussions' %}feed-tab--active{% endif %}">Discussions</a>
+        <a href="?filter=external" class="feed-tab {% if filter_type == 'external' %}feed-tab--active{% endif %}">External</a>
+    </div>
+</div>
+
+{% if current_user.is_authenticated %}
+<a href="{{ url_for('posts.create') }}" class="create-prompt" id="create-prompt">
+    <div class="avatar avatar--sm">
+        {% if current_user.avatar_url %}
+        <img src="{{ current_user.avatar_url }}" alt="">
+        {% else %}
+        <span>{{ current_user.username[0]|upper }}</span>
+        {% endif %}
+    </div>
+    <span class="create-prompt__text">Share a project, snippet, or thought...</span>
+</a>
+{% endif %}
+
+{% if posts %}
+<div class="feed-list">
+    {% for post in posts %}
+    {% include "feed/_post_card.html" %}
+    {% endfor %}
+</div>
+
+<!-- Pagination — NO infinite scroll -->
+{% if pagination.pages > 1 %}
+<nav class="pagination" aria-label="Feed pagination">
+    {% if pagination.has_prev %}
+    <a href="?page={{ pagination.prev_num }}&filter={{ filter_type }}" class="pagination__btn">← Previous</a>
+    {% endif %}
+    <div class="pagination__pages">
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+                <a href="?page={{ p }}&filter={{ filter_type }}" class="pagination__page {% if p == pagination.page %}pagination__page--active{% endif %}">{{ p }}</a>
+            {% else %}
+                <span class="pagination__ellipsis">…</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if pagination.has_next %}
+    <a href="?page={{ pagination.next_num }}&filter={{ filter_type }}" class="pagination__btn">Next →</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state__icon">📡</div>
+    <h2 class="empty-state__title">No posts yet</h2>
+    <p class="empty-state__text">Be the first to share something. No algorithm — just chronological signal.</p>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('posts.create') }}" class="btn btn--primary">Create Post</a>
+    {% else %}
+    <a href="{{ url_for('auth.register') }}" class="btn btn--primary">Join Socioprogram</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/feed.js') }}"></script>
+{% endblock %}

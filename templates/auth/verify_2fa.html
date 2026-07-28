@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Verify 2FA — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__header">
+            <div class="auth-logo">🔐</div>
+            <h1 class="auth-card__title">Two-Factor Authentication</h1>
+            <p class="auth-card__subtitle">Enter the code from your authenticator app</p>
+        </div>
+
+        <form method="POST" class="auth-form" id="verify-2fa-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="code" class="form-label">Authentication Code</label>
+                <input type="text" id="code" name="code" class="form-input form-input--code" placeholder="000000" required maxlength="6" pattern="[0-9A-Fa-f]+" inputmode="numeric" autocomplete="one-time-code" autofocus>
+                <span class="form-hint">You can also use a recovery code.</span>
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">Verify</button>
+        </form>
+
+        <p class="auth-card__footer">
+            <a href="{{ url_for('auth.login') }}">← Back to login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

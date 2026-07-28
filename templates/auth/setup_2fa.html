@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Two-Factor Authentication — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        {% if step == 'setup' %}
+        <div class="auth-card__header">
+            <h1 class="auth-card__title">Enable 2FA</h1>
+            <p class="auth-card__subtitle">Scan this QR code with your authenticator app</p>
+        </div>
+
+        <div class="twofa-setup">
+            <div class="twofa-qr">
+                <img src="data:image/png;base64,{{ qr_code }}" alt="2FA QR Code">
+            </div>
+            <div class="twofa-manual">
+                <p class="form-hint">Can't scan? Enter this key manually:</p>
+                <code class="twofa-secret">{{ secret }}</code>
+            </div>
+        </div>
+
+        <form method="POST" class="auth-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="code" class="form-label">Enter the 6-digit code from your app</label>
+                <input type="text" id="code" name="code" class="form-input form-input--code" placeholder="000000" required maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code">
+            </div>
+            <button type="submit" class="btn btn--primary btn--full">Verify &amp; Enable 2FA</button>
+        </form>
+
+        {% elif step == 'recovery' %}
+        <div class="auth-card__header">
+            <h1 class="auth-card__title">✅ 2FA Enabled</h1>
+            <p class="auth-card__subtitle">Save these recovery codes — they are shown only once</p>
+        </div>
+
+        <div class="recovery-codes">
+            {% for code in recovery_codes %}
+            <code class="recovery-code">{{ code }}</code>
+            {% endfor %}
+        </div>
+        <p class="form-hint" style="text-align:center;margin-top:1rem;">Store these in a safe place. Each code can only be used once.</p>
+        <a href="{{ url_for('profile.edit') }}" class="btn btn--primary btn--full" style="margin-top:1rem;">Done</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

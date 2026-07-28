@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Report Content — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Submit Flag / Report</h1>
+    <p class="page-header__subtitle">File a report to flag a violation of the Socioprogram rules.</p>
+</div>
+
+<div class="auth-card" style="margin: 0 auto; max-width: 500px;">
+    <form method="POST" action="{{ url_for('api.submit_report') }}" class="auth-form" id="direct-report-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        {% if request.args.get('post_id') %}
+        <input type="hidden" name="post_id" value="{{ request.args.get('post_id') }}">
+        <div class="form-group">
+            <span class="form-label">Flagging Post ID</span>
+            <input type="text" class="form-input" value="{{ request.args.get('post_id') }}" disabled>
+        </div>
+        {% endif %}
+
+        {% if request.args.get('comment_id') %}
+        <input type="hidden" name="comment_id" value="{{ request.args.get('comment_id') }}">
+        <div class="form-group">
+            <span class="form-label">Flagging Comment ID</span>
+            <input type="text" class="form-input" value="{{ request.args.get('comment_id') }}" disabled>
+        </div>
+        {% endif %}
+
+        {% if request.args.get('user_id') %}
+        <input type="hidden" name="user_id" value="{{ request.args.get('user_id') }}">
+        <div class="form-group">
+            <span class="form-label">Flagging User ID</span>
+            <input type="text" class="form-input" value="{{ request.args.get('user_id') }}" disabled>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="reason" class="form-label">Rule Violated</label>
+            <select name="reason" id="reason" class="form-select" required>
+                <option value="">Select violation reason...</option>
+                <option value="Off-topic content">No off-topic content (rules #1)</option>
+                <option value="Self-promotion/Spam">No ads or self-promotion spam (rules #2)</option>
+                <option value="Toxicity/Harassment">No harassment or toxicity (rules #3)</option>
+                <option value="AI-generated spam">No AI-generated spam (rules #4)</option>
+                <option value="Clickbait">No clickbait titles (rules #5)</option>
+                <option value="Malicious code">No malicious code (rules #6)</option>
+                <option value="Impersonation">No impersonation (rules #7)</option>
+                <option value="Unconstructive behaviour">Keep it constructive (rules #8)</option>
+                <option value="NSFW">No NSFW content (rules #9)</option>
+                <option value="License violation">Respect open source licenses (rules #10)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="details" class="form-label">Additional Details</label>
+            <textarea name="details" id="details" class="form-textarea" rows="4" placeholder="Explain the violation in detail..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">File Report</button>
+        <a href="{{ url_for('feed.index') }}" class="btn btn--ghost btn--full" style="margin-top: 0.5rem; text-align: center;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

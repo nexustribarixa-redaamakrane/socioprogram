@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Create Post — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Create Post</h1>
+    <p class="page-header__subtitle">Share a project, code snippet, or engineering thought</p>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="post-form" id="create-post-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-group">
+        <label for="post_type" class="form-label">Post Type</label>
+        <div class="post-type-selector">
+            <label class="post-type-option">
+                <input type="radio" name="post_type" value="project" checked>
+                <span class="post-type-option__label">🚀 Project</span>
+            </label>
+            <label class="post-type-option">
+                <input type="radio" name="post_type" value="snippet">
+                <span class="post-type-option__label">📝 Snippet</span>
+            </label>
+            <label class="post-type-option">
+                <input type="radio" name="post_type" value="discussion">
+                <span class="post-type-option__label">💬 Discussion</span>
+            </label>
+            <label class="post-type-option">
+                <input type="radio" name="post_type" value="showcase">
+                <span class="post-type-option__label">🎯 Showcase</span>
+            </label>
+            <label class="post-type-option">
+                <input type="radio" name="post_type" value="shill">
+                <span class="post-type-option__label">📢 Shill</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="title" class="form-label">Title <span class="char-count" id="title-count">0/200</span></label>
+        <input type="text" id="title" name="title" class="form-input" placeholder="A clear, descriptive title — no clickbait" required minlength="5" maxlength="200">
+    </div>
+
+    <div class="form-group">
+        <label for="content" class="form-label">Content</label>
+        <textarea id="content" name="content" class="form-textarea" rows="6" placeholder="Describe your project, share your thoughts, explain your code..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="code_snippet" class="form-label">Code Snippet <span class="form-optional">(optional)</span></label>
+        <div class="code-editor-header">
+            <select id="code_language" name="code_language" class="form-select form-select--sm">
+                <option value="">Language</option>
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="typescript">TypeScript</option>
+                <option value="rust">Rust</option>
+                <option value="go">Go</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+                <option value="c">C</option>
+                <option value="csharp">C#</option>
+                <option value="ruby">Ruby</option>
+                <option value="php">PHP</option>
+                <option value="swift">Swift</option>
+                <option value="kotlin">Kotlin</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="sql">SQL</option>
+                <option value="bash">Bash</option>
+                <option value="yaml">YAML</option>
+                <option value="json">JSON</option>
+            </select>
+        </div>
+        <textarea id="code_snippet" name="code_snippet" class="form-textarea form-textarea--code" rows="8" placeholder="Paste your code here..." spellcheck="false"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="external_url" class="form-label">External URL <span class="form-optional">(optional)</span></label>
+        <input type="url" id="external_url" name="external_url" class="form-input" placeholder="https://github.com/you/project">
+    </div>
+
+    <div class="form-group">
+        <label for="screenshot" class="form-label">Screenshot <span class="form-optional">(optional, max 5MB)</span></label>
+        <div class="file-upload" id="file-upload">
+            <input type="file" id="screenshot" name="screenshot" accept="image/*" class="file-upload__input">
+            <div class="file-upload__preview" id="screenshot-preview" style="display:none;">
+                <img id="screenshot-img" src="" alt="Preview">
+                <button type="button" class="file-upload__remove" id="remove-screenshot">&times;</button>
+            </div>
+            <div class="file-upload__prompt" id="upload-prompt">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Click or drag to upload</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('feed.index') }}" class="btn btn--ghost">Cancel</a>
+        <button type="submit" class="btn btn--primary" id="btn-publish">Publish Post</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/post.js') }}"></script>
+{% endblock %}

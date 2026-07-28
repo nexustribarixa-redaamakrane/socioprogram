@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — Socioprogram{% endblock %}
+
+{% block content %}
+<article class="post-detail" id="post-{{ post.id }}">
+    <div class="post-detail__header">
+        <a href="{{ url_for('profile.view', username=post.author.username) }}" class="post-detail__avatar">
+            <div class="avatar avatar--md">
+                {% if post.author.avatar_url %}
+                <img src="{{ post.author.avatar_url }}" alt="">
+                {% else %}
+                <span>{{ post.author.username[0]|upper }}</span>
+                {% endif %}
+            </div>
+        </a>
+        <div class="post-detail__meta">
+            <a href="{{ url_for('profile.view', username=post.author.username) }}" class="post-detail__author">{{ post.author.display_name }}</a>
+            <span class="post-detail__handle">@{{ post.author.username }}</span>
+            <time class="post-detail__time" datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%b %d, %Y at %H:%M') }}</time>
+        </div>
+        <span class="post-type-badge post-type-badge--{{ post.post_type }}">{{ post.post_type }}</span>
+    </div>
+
+    <h1 class="post-detail__title">{{ post.title }}</h1>
+
+    {% if post.content %}
+    <div class="post-detail__content">{{ post.content }}</div>
+    {% endif %}
+
+    {% if post.code_snippet %}
+    <div class="post-detail__code">
+        <div class="code-header">
+            <span class="code-lang">{{ post.code_language or 'code' }}</span>
+            <button class="code-copy" data-code="post-code-{{ post.id }}">Copy</button>
+        </div>
+        <pre><code id="post-code-{{ post.id }}" class="{{ post.code_language }}">{{ post.code_snippet }}</code></pre>
+    </div>
+    {% endif %}
+
+    {% if post.screenshot_url %}
+    <div class="post-detail__image">
+        <img src="{{ post.screenshot_url }}" alt="Screenshot" loading="lazy">
+    </div>
+    {% endif %}
+
+    {% if post.external_url %}
+    <a href="{{ post.external_url }}" class="post-detail__link" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        {{ post.external_url }}
+    </a>
+    {% endif %}
+
+    <div class="post-detail__actions">
+        <button class="post-action post-action--lg star-btn {% if user_starred %}star-btn--active{% endif %}" data-post-id="{{ post.id }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="{% if user_starred %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span class="star-count">{{ post.star_count }} stars</span>
+        </button>
+        <button class="post-action post-action--lg share-btn" data-url="{{ request.url }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Share</span>
+        </button>
+        {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user.is_moderator) %}
+        <form method="POST" action="{{ url_for('posts.delete', post_id=post.id) }}" class="inline-form" onsubmit="return confirm('Delete this post? This cannot be undone.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="post-action post-action--lg post-action--danger">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Delete</span>
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Comments Section -->
+    <section class="comments-section" id="comments">
+        <h2 class="comments-section__title">Comments ({{ post.comment_count }})</h2>
+
+        {% if current_user.is_authenticated %}
+        <form class="comment-form" id="comment-form" data-post-id="{{ post.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="comment-form__body">
+                <div class="avatar avatar--sm">
+                    {% if current_user.avatar_url %}
+                    <img src="{{ current_user.avatar_url }}" alt="">
+                    {% else %}
+                    <span>{{ current_user.username[0]|upper }}</span>
+                    {% endif %}
+                </div>
+                <textarea name="content" class="form-textarea form-textarea--sm" placeholder="Add a comment..." rows="2" required></textarea>
+            </div>
+            <div class="comment-form__actions">
+                <button type="submit" class="btn btn--primary btn--sm">Comment</button>
+            </div>
+        </form>
+        {% else %}
+        <p class="comments-section__login"><a href="{{ url_for('auth.login') }}">Sign in</a> to comment.</p>
+        {% endif %}
+
+        <div class="comments-list" id="comments-list">
+            {% for comment in comments %}
+            <div class="comment" id="comment-{{ comment.id }}">
+                <div class="comment__avatar">
+                    <div class="avatar avatar--xs">
+                        {% if comment.author.avatar_url %}
+                        <img src="{{ comment.author.avatar_url }}" alt="">
+                        {% else %}
+                        <span>{{ comment.author.username[0]|upper }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="comment__body">
+                    <div class="comment__header">
+                        <a href="{{ url_for('profile.view', username=comment.author.username) }}" class="comment__author">{{ comment.author.display_name }}</a>
+                        <span class="comment__handle">@{{ comment.author.username }}</span>
+                        <span class="comment__time">{{ comment.time_ago }}</span>
+                    </div>
+                    <p class="comment__content">{{ comment.content }}</p>
+                    {% if comment.code_snippet %}
+                    <pre class="comment__code"><code>{{ comment.code_snippet }}</code></pre>
+                    {% endif %}
+                    {% if current_user.is_authenticated and (current_user.id == comment.author_id or current_user.is_moderator) %}
+                    <button class="comment__delete" data-comment-id="{{ comment.id }}">Delete</button>
+                    {% endif %}
+
+                    <!-- Replies -->
+                    {% for reply in comment.replies.filter_by(is_removed=False).all() %}
+                    <div class="comment comment--reply" id="comment-{{ reply.id }}">
+                        <div class="comment__avatar">
+                            <div class="avatar avatar--xs">
+                                {% if reply.author.avatar_url %}
+                                <img src="{{ reply.author.avatar_url }}" alt="">
+                                {% else %}
+                                <span>{{ reply.author.username[0]|upper }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="comment__body">
+                            <div class="comment__header">
+                                <a href="{{ url_for('profile.view', username=reply.author.username) }}" class="comment__author">{{ reply.author.display_name }}</a>
+                                <span class="comment__time">{{ reply.time_ago }}</span>
+                            </div>
+                            <p class="comment__content">{{ reply.content }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</article>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/feed.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Mod Panel — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Moderation Dashboard</h1>
+    <p class="page-header__subtitle">Platform health metrics & report handling queue</p>
+</div>
+
+<div class="mod-stats">
+    <div class="stat-card">
+        <span class="stat-card__value">{{ stats.pending_reports }}</span>
+        <span class="stat-card__label">Pending Reports</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__value">{{ stats.total_bans_active }}</span>
+        <span class="stat-card__label">Active Bans</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__value">{{ stats.total_users }}</span>
+        <span class="stat-card__label">Total Users</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-card__value">{{ stats.total_posts }}</span>
+        <span class="stat-card__label">Active Posts</span>
+    </div>
+</div>
+
+<div class="settings-section">
+    <h2 class="settings-section__title">Report Queue</h2>
+    {% if reports %}
+    <div class="reports-list">
+        {% for report in reports %}
+        <div class="report-item" id="report-{{ report.id }}">
+            <div class="report-item__header">
+                <span class="report-item__id">Report #{{ report.id }}</span>
+                <span class="report-item__reason badge badge--danger">{{ report.reason }}</span>
+                <span class="report-item__date">{{ report.created_at.strftime('%b %d, %H:%M') }}</span>
+            </div>
+            <div class="report-item__body">
+                <p><strong>Reporter:</strong> @{{ report.reporter.username }}</p>
+                {% if report.reported_user %}
+                <p><strong>Reported User:</strong> @{{ report.reported_user.username }}</p>
+                {% endif %}
+                {% if report.post %}
+                <p><strong>Reported Post:</strong> <a href="{{ url_for('posts.detail', post_id=report.post.id) }}" target="_blank">{{ report.post.title }}</a></p>
+                {% endif %}
+                {% if report.comment %}
+                <p><strong>Reported Comment:</strong> <code style="background:var(--bg-primary);padding:0.2rem 0.4rem;border-radius:4px;">{{ report.comment.content[:100] }}</code></p>
+                {% endif %}
+                {% if report.details %}
+                <div class="report-item__details">
+                    <strong>Details:</strong> {{ report.details }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="report-item__actions">
+                <form method="POST" action="{{ url_for('moderation.action_report', report_id=report.id) }}" class="mod-action-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-row">
+                        <select name="action" class="form-select form-select--sm" required>
+                            <option value="">Choose Action</option>
+                            <option value="dismiss">Dismiss Report</option>
+                            <option value="warn">Issue Warning</option>
+                            {% if report.post_id or report.comment_id %}
+                            <option value="remove_post">Remove Content</option>
+                            {% endif %}
+                            <option value="temp_ban">Temporary Ban</option>
+                            <option value="perm_ban">Permanent Ban</option>
+                        </select>
+                        <input type="number" name="duration_days" class="form-input form-input--sm" style="width: 80px;" placeholder="Days (7)" min="1" max="365" value="7">
+                    </div>
+                    <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="text" name="notes" class="form-input form-input--sm" placeholder="Review notes / ban reason" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--sm">Execute Action</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state__text" style="padding: 2rem 0;">Clear queue. No reports pending review.</p>
+    {% endif %}
+</div>
+
+<div class="settings-section" style="margin-top: 2rem;">
+    <h2 class="settings-section__title">Active Bans</h2>
+    {% if recent_bans %}
+    <div class="bans-table-container">
+        <table class="bans-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Banned By</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ban in recent_bans %}
+                <tr>
+                    <td>@{{ ban.user.username }}</td>
+                    <td>@{{ ban.banned_by.username }}</td>
+                    <td><span class="badge {% if ban.ban_type == 'permanent' %}badge--danger{% else %}badge--warning{% endif %}">{{ ban.ban_type }}</span></td>
+                    <td class="text-truncate" style="max-width:200px;">{{ ban.reason }}</td>
+                    <td>{{ ban.expires_at.strftime('%Y-%m-%d') if ban.expires_at else 'Never' }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('moderation.lift_ban', ban_id=ban.id) }}" onsubmit="return confirm('Lift ban for this user?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn--ghost btn--xs btn--danger-text">Lift Ban</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="empty-state__text" style="padding: 2rem 0;">No active bans registered.</p>
+    {% endif %}
+</div>
+{% endblock %}

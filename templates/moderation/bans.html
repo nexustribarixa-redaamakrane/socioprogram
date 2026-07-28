@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Transparency Log — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Transparency Ban Log</h1>
+    <p class="page-header__subtitle">Chronological record of all platform governance actions.</p>
+</div>
+
+{% if bans %}
+<div class="bans-log-list">
+    <table class="bans-table">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Target User</th>
+                <th>Action Type</th>
+                <th>Reason</th>
+                <th>Expiration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ban in bans %}
+            <tr>
+                <td>{{ ban.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>@{{ ban.user.username }}</td>
+                <td><span class="badge {% if ban.ban_type == 'permanent' %}badge--danger{% else %}badge--warning{% endif %}">{{ ban.ban_type }}</span></td>
+                <td>{{ ban.reason }}</td>
+                <td>{{ ban.expires_at.strftime('%Y-%m-%d') if ban.expires_at else 'Never (Perm)' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="?page={{ pagination.prev_num }}" class="pagination__btn">← Previous</a>
+    {% endif %}
+    <div class="pagination__pages">
+        {% for p in pagination.iter_pages() %}
+            {% if p %}
+                <a href="?page={{ p }}" class="pagination__page {% if p == pagination.page %}pagination__page--active{% endif %}">{{ p }}</a>
+            {% else %}
+                <span class="pagination__ellipsis">…</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if pagination.has_next %}
+    <a href="?page={{ pagination.next_num }}" class="pagination__btn">Next →</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state__icon">🕊️</div>
+    <h2 class="empty-state__title">Clear record</h2>
+    <p class="empty-state__text">No governance actions have been logged yet.</p>
+</div>
+{% endif %}
+{% endblock %}

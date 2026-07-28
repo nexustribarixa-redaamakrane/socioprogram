@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card__header">
+            <div class="auth-logo">SP</div>
+            <h1 class="auth-card__title">Join Socioprogram</h1>
+            <p class="auth-card__subtitle">The anti-bloat platform for coding geeks</p>
+        </div>
+
+        <form method="POST" class="auth-form" id="register-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="cooldev" required pattern="[a-z0-9_]+" minlength="3" maxlength="32" autocomplete="username">
+                <span class="form-hint">Lowercase letters, numbers, underscores. 3–32 chars.</span>
+            </div>
+            <div class="form-group">
+                <label for="display_name" class="form-label">Display Name <span class="form-optional">(optional)</span></label>
+                <input type="text" id="display_name" name="display_name" class="form-input" placeholder="Cool Developer" maxlength="64">
+            </div>
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required minlength="8" autocomplete="new-password">
+                <span class="form-hint">8+ characters, at least one number and one special character.</span>
+                <div class="password-strength" id="password-strength"></div>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn--primary btn--full" id="btn-register">Create Account</button>
+        </form>
+
+        <p class="auth-card__footer">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

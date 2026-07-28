@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Edit Profile</h1>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="settings-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="settings-section">
+        <h2 class="settings-section__title">Profile</h2>
+        <div class="form-group">
+            <label for="display_name" class="form-label">Display Name</label>
+            <input type="text" id="display_name" name="display_name" class="form-input" value="{{ current_user.display_name }}" maxlength="64">
+        </div>
+        <div class="form-group">
+            <label for="bio" class="form-label">Bio <span class="form-optional">(max 500 chars)</span></label>
+            <textarea id="bio" name="bio" class="form-textarea" rows="3" maxlength="500">{{ current_user.bio }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="avatar" class="form-label">Avatar</label>
+            <div class="avatar-upload">
+                <div class="avatar avatar--md">
+                    {% if current_user.avatar_url %}
+                    <img src="{{ current_user.avatar_url }}" alt="">
+                    {% else %}
+                    <span>{{ current_user.username[0]|upper }}</span>
+                    {% endif %}
+                </div>
+                <input type="file" id="avatar" name="avatar" accept="image/*" class="form-input">
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-section">
+        <h2 class="settings-section__title">Linked Accounts</h2>
+        <div class="form-group">
+            <label for="github_username" class="form-label">GitHub Username</label>
+            <input type="text" id="github_username" name="github_username" class="form-input" value="{{ current_user.github_username }}" placeholder="octocat">
+        </div>
+        <div class="form-group">
+            <label for="reddit_username" class="form-label">Reddit Username</label>
+            <input type="text" id="reddit_username" name="reddit_username" class="form-input" value="{{ current_user.reddit_username }}" placeholder="spez">
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn--primary">Save Changes</button>
+</form>
+
+<!-- Security Section -->
+<div class="settings-section" style="margin-top:2rem;">
+    <h2 class="settings-section__title">Security</h2>
+
+    <!-- 2FA -->
+    <div class="settings-item">
+        <div class="settings-item__info">
+            <h3>Two-Factor Authentication</h3>
+            <p>{% if current_user.has_2fa %}2FA is <strong>enabled</strong>.{% else %}Add an extra layer of security.{% endif %}</p>
+        </div>
+        {% if current_user.has_2fa %}
+        <form method="POST" action="{{ url_for('auth.disable_2fa') }}" onsubmit="return confirm('Disable 2FA? This reduces your account security.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn--ghost btn--sm">Disable 2FA</button>
+        </form>
+        {% else %}
+        <a href="{{ url_for('auth.setup_2fa') }}" class="btn btn--primary btn--sm">Enable 2FA</a>
+        {% endif %}
+    </div>
+
+    <!-- Change Password -->
+    {% if current_user.password_hash %}
+    <form method="POST" action="{{ url_for('profile.change_password') }}" class="settings-form" style="margin-top:1rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h3 style="color:var(--text-secondary);margin-bottom:0.5rem;">Change Password</h3>
+        <div class="form-group">
+            <input type="password" name="current_password" class="form-input" placeholder="Current password" required>
+        </div>
+        <div class="form-group">
+            <input type="password" name="new_password" class="form-input" placeholder="New password" required minlength="8">
+        </div>
+        <div class="form-group">
+            <input type="password" name="confirm_password" class="form-input" placeholder="Confirm new password" required>
+        </div>
+        <button type="submit" class="btn btn--ghost btn--sm">Update Password</button>
+    </form>
+    {% endif %}
+</div>
+
+<!-- Danger Zone -->
+<div class="settings-section settings-section--danger" style="margin-top:2rem;">
+    <h2 class="settings-section__title" style="color:var(--accent-red);">Danger Zone</h2>
+    <form method="POST" action="{{ url_for('profile.delete_account') }}" onsubmit="return confirm('DELETE YOUR ACCOUNT? This is permanent and cannot be undone.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <input type="password" name="password" class="form-input" placeholder="Enter your password to confirm" required>
+        </div>
+        <button type="submit" class="btn btn--danger btn--sm">Delete My Account</button>
+    </form>
+</div>
+{% endblock %}

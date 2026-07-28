@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Notifications — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Notifications</h1>
+    <p class="page-header__subtitle">Real-time alerts of interactions on your registry profile.</p>
+</div>
+
+{% if notifications %}
+<div class="notifications-list">
+    {% for notif in notifications %}
+    <div class="notification-item {% if not notif.is_read %}notification-item--unread{% endif %}">
+        <div class="notification-item__icon">
+            {% if notif.type == 'star' %}
+            ⭐
+            {% elif notif.type == 'comment' %}
+            💬
+            {% elif notif.type == 'follow' %}
+            👥
+            {% elif notif.type == 'mod_action' or notif.type == 'warning' %}
+            ⚠️
+            {% else %}
+            🔔
+            {% endif %}
+        </div>
+        <div class="notification-item__content">
+            <p class="notification-item__message">{{ notif.message }}</p>
+            <span class="notification-item__time">{{ notif.time_ago }}</span>
+        </div>
+        {% if notif.link %}
+        <a href="{{ notif.link }}" class="notification-item__action btn btn--ghost btn--sm">View</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% if pagination.pages > 1 %}
+<nav class="pagination">
+    {% if pagination.has_prev %}
+    <a href="?page={{ pagination.prev_num }}" class="pagination__btn">← Previous</a>
+    {% endif %}
+    <div class="pagination__pages">
+        {% for p in pagination.iter_pages() %}
+            {% if p %}
+                <a href="?page={{ p }}" class="pagination__page {% if p == pagination.page %}pagination__page--active{% endif %}">{{ p }}</a>
+            {% else %}
+                <span class="pagination__ellipsis">…</span>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% if pagination.has_next %}
+    <a href="?page={{ pagination.next_num }}" class="pagination__btn">Next →</a>
+    {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state__icon">🔔</div>
+    <h2 class="empty-state__title">Clear feed</h2>
+    <p class="empty-state__text">You are fully up to date. No notifications.</p>
+</div>
+{% endif %}
+{% endblock %}

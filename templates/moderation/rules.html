@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Rules — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Community Covenant</h1>
+    <p class="page-header__subtitle">Socioprogram is dedicated to code-focused interaction. Anti-bloat, anti-algorithmic, and anti-cringe.</p>
+</div>
+
+<div class="rules-container">
+    {% for rule in rules %}
+    <div class="rule-card">
+        <div class="rule-card__number">#{{ rule.order }}</div>
+        <div class="rule-card__content">
+            <h2 class="rule-card__title">{{ rule.title }}</h2>
+            <p class="rule-card__desc">{{ rule.description }}</p>
+            <span class="rule-card__severity">Severity: <strong style="text-transform:uppercase;">{{ rule.severity }}</strong></span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

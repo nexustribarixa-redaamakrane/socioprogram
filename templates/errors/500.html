@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}500 — Registry Failure{% endblock %}
+
+{% block content %}
+<div class="empty-state">
+    <div class="empty-state__icon">💥</div>
+    <h1 class="empty-state__title">500 — Registry Failure</h1>
+    <p class="empty-state__text">An internal system conflict occurred while fetching the transaction logs.</p>
+    <a href="{{ url_for('feed.index') }}" class="btn btn--primary">Return Home</a>
+</div>
+{% endblock %}

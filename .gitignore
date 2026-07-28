@@ -1,15 +1,36 @@
-# Dependencies
-node_modules
-.pnp
-.pnp.js
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
 
-# Build output
-dist
-dist-ssr
+# Environment
+.env
 
-# IDE/OS files
+# Database
+instance/
+*.db
+*.sqlite3
+
+# Uploads
+static/uploads/avatars/*
+static/uploads/posts/*
+!static/uploads/avatars/.keep
+!static/uploads/posts/.keep
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
-*.log
-.env.local
-.env.*.local
+Thumbs.db
+
+# Node (legacy, in case any remain)
+node_modules/

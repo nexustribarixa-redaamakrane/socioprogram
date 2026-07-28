@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Search — Socioprogram{% endblock %}
+
+{% block content %}
+<div class="search-header">
+    <h1 class="search-header__title">Search Registry</h1>
+    <form method="GET" class="search-form">
+        <div class="search-input-group">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search posts, snippets, users..." class="form-input search-input" required>
+            <button type="submit" class="btn btn--primary">Query</button>
+        </div>
+        <div class="search-filters">
+            <label class="search-filter-opt">
+                <input type="radio" name="type" value="posts" {% if search_type != 'users' %}checked{% endif %}>
+                <span>Posts</span>
+            </label>
+            <label class="search-filter-opt">
+                <input type="radio" name="type" value="users" {% if search_type == 'users' %}checked{% endif %}>
+                <span>Users</span>
+            </label>
+        </div>
+    </form>
+</div>
+
+{% if query %}
+<div class="search-results-info">
+    Query: <code>{{ query }}</code> — Found {{ results|length }} result(s)
+</div>
+
+{% if results %}
+    {% if search_type == 'users' %}
+    <div class="user-results-list">
+        {% for user in results %}
+        <div class="user-card">
+            <div class="user-card__avatar">
+                <div class="avatar avatar--md">
+                    {% if user.avatar_url %}
+                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <span>{{ user.username[0]|upper }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="user-card__info">
+                <a href="{{ url_for('profile.view', username=user.username) }}" class="user-card__name">{{ user.display_name }}</a>
+                <span class="user-card__handle">@{{ user.username }}</span>
+                {% if user.bio %}
+                <p class="user-card__bio">{{ user.bio[:120] }}{% if user.bio|length > 120 %}...{% endif %}</p>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('profile.view', username=user.username) }}" class="btn btn--ghost btn--sm">View Profile</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="feed-list">
+        {% set starred_ids = [] %}
+        {% for post in results %}
+        {% include "feed/_post_card.html" %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if pagination and pagination.pages > 1 %}
+    <nav class="pagination">
+        {% if pagination.has_prev %}
+        <a href="?q={{ query }}&type={{ search_type }}&page={{ pagination.prev_num }}" class="pagination__btn">← Previous</a>
+        {% endif %}
+        <div class="pagination__pages">
+            {% for p in pagination.iter_pages() %}
+                {% if p %}
+                    <a href="?q={{ query }}&type={{ search_type }}&page={{ p }}" class="pagination__page {% if p == pagination.page %}pagination__page--active{% endif %}">{{ p }}</a>
+                {% else %}
+                    <span class="pagination__ellipsis">…</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if pagination.has_next %}
+        <a href="?q={{ query }}&type={{ search_type }}&page={{ pagination.next_num }}" class="pagination__btn">Next →</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state__icon">🔍</div>
+    <h2 class="empty-state__title">No matching entries found</h2>
+    <p class="empty-state__text">Try adjusting your query or filters.</p>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
