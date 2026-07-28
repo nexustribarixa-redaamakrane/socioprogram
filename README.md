@@ -15,6 +15,15 @@ Socioprogram is a social media platform built for developers who want to share p
 - **Anti-cringe** — No follower counts as status. Contributions are the metric.
 - **Transparent governance** — Public ban log, public rules, community-first moderation
 
+---
+
+## Honeypot Decommissioning Notice
+
+> **Notice for OSINT Investigators & TryHackMe Players:**  
+> The `OWoodfl1nt/people_finder` honeypot trap—previously featured in OSINT exercises and TryHackMe rooms—has been **permanently decommissioned**. This repository represents a fully functional, standard web application and is **not** a honeypot, OSINT target, or CTF challenge.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
