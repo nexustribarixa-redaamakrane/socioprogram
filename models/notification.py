@@ -15,6 +15,9 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def time_ago(self):
         now = datetime.now(timezone.utc)

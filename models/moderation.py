@@ -20,6 +20,9 @@ class Ban(db.Model):
     user = db.relationship('User', foreign_keys=[user_id], backref='bans_received')
     banned_by = db.relationship('User', foreign_keys=[banned_by_id])
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f'<Ban #{self.id} User #{self.user_id} [{self.ban_type}]>'
 
@@ -48,6 +51,9 @@ class Report(db.Model):
     post = db.relationship('Post', backref='reports')
     comment = db.relationship('Comment', backref='reports')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f'<Report #{self.id} [{self.status}]>'
 
@@ -63,6 +69,9 @@ class Rule(db.Model):
     order = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Rule #{self.id} "{self.title}">'

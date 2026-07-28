@@ -15,6 +15,9 @@ class Star(db.Model):
         db.UniqueConstraint('post_id', 'user_id', name='uq_star_post_user'),
     )
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f'<Star User #{self.user_id} → Post #{self.post_id}>'
 
@@ -31,6 +34,9 @@ class Follow(db.Model):
     __table_args__ = (
         db.UniqueConstraint('follower_id', 'following_id', name='uq_follow_pair'),
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<Follow #{self.follower_id} → #{self.following_id}>'

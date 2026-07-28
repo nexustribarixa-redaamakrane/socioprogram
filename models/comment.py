@@ -22,6 +22,9 @@ class Comment(db.Model):
     replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]),
                               lazy='dynamic')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def time_ago(self):
         now = datetime.now(timezone.utc)

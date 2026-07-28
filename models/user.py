@@ -35,6 +35,9 @@ class User(UserMixin, db.Model):
                                     foreign_keys='Notification.user_id')
     oauth_accounts = db.relationship('UserOAuth', backref='user', lazy='dynamic')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -80,6 +83,9 @@ class UserOAuth(db.Model):
     __table_args__ = (
         db.UniqueConstraint('provider', 'provider_user_id', name='uq_oauth_provider_id'),
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<UserOAuth {self.provider}:{self.provider_user_id}>'

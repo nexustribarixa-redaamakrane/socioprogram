@@ -39,6 +39,9 @@ class Post(db.Model):
     images = db.relationship('PostImage', backref='post', lazy='dynamic',
                              cascade='all, delete-orphan')
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     @property
     def screenshot_url(self):
         if self.screenshot_path:
@@ -78,6 +81,9 @@ class PostImage(db.Model):
     image_path = db.Column(db.String(512), nullable=False)
     caption = db.Column(db.String(256), default='')
     order = db.Column(db.Integer, default=0)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f'<PostImage #{self.id} for Post #{self.post_id}>'
