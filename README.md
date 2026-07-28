@@ -22,6 +22,33 @@ Socioprogram is a social media platform built for developers who want to share p
 > **Notice for OSINT Investigators & TryHackMe Players:**  
 > The `OWoodfl1nt/people_finder` honeypot trap—previously featured in OSINT exercises and TryHackMe rooms—has been **permanently decommissioned**. This repository represents a fully functional, standard web application and is **not** a honeypot, OSINT target, or CTF challenge.
 
+### Who Is Oliver Woodflint?
+
+**Oliver Woodflint** (username: `OWoodflint` / `OWoodfl1nt`) is a **fictional persona** created for TryHackMe's beginner OSINT room called **"OhSINT"**. He is not a real person — he is a deliberately constructed digital footprint designed to teach newcomers how to trace someone across the open internet using freely available tools. His entire online presence is a breadcrumb trail of intentionally planted "leaks."
+
+Here's what you find when you investigate him across platforms:
+
+| Platform | What's There | Key Info Exposed |
+|----------|-------------|-----------------|
+| **TryHackMe (OhSINT Room)** | The starting point. Players receive a `WindowsXP.jpg` image file and must extract EXIF metadata using `exiftool`, which reveals the copyright name "OWoodflint" — the pivot point for the entire investigation. | Username: `OWoodflint` |
+| **Twitter / X** | A planted account with a **cat avatar**. One tweet contains a Wi-Fi **BSSID** (`B4:5D:50:AA:86:41`) that can be geolocated on [WiGLE.net](https://wigle.net) to pinpoint the user's location. | Location: **London**; SSID: **UnileverWiFi** |
+| **GitHub** | The `OWoodfl1nt` profile hosts the `people_finder` repository. The repo's README or profile exposes a personal email address and confirms the user's city. | Email: `OWoodflint@gmail.com`; City: **London** |
+| **WordPress** | A personal blog where "Oliver" writes about being on holiday. The blog post reveals his travel destination. More critically, the **page source code** contains a password hidden in plain text within the HTML/CSS. | Holiday: **New York**; Password: `pennYDr0pper.!` |
+
+### Why the Repo Was Forked & Decommissioned
+
+The original `OWoodfl1nt/people_finder` repository was forked by this project's maintainers as a historical reference before being **permanently decommissioned** for the following reasons:
+
+1. **It served its purpose and outlived its usefulness.** The OhSINT room has been solved and written up thousands of times. Every answer is publicly documented across Medium, GitHub writeups, InfoSec blogs, and YouTube walkthroughs. There is zero investigative challenge left — it's effectively a copy-paste exercise at this point.
+
+2. **The "people finder" concept is cringey and massively reused.** The idea of a fake "people finder" tool as an OSINT honeypot has been done to death. It's the cybersecurity equivalent of a "Hello World" — except people keep presenting it as if it's clever. Naming a repo `people_finder` and stuffing it with planted credentials is neither original nor sophisticated. It was mildly interesting the first time; by the hundredth TryHackMe writeup, it's just cringe.
+
+3. **The planted data creates false positives.** Having a fake email (`OWoodflint@gmail.com`), a fake BSSID, and a fake password floating around indexed by every search engine creates noise. OSINT practitioners and automated scanners constantly stumble on this data and waste time triaging it as if it were real.
+
+4. **This repo is a real project, not a game.** Socioprogram is a legitimate, functional social platform. Maintaining any association with a beginner CTF exercise — however indirect — undermines the project's credibility. The fork has been archived, the honeypot has been gutted, and what remains is production code.
+
+> **TL;DR:** Oliver Woodflint is a fictional training dummy. His `people_finder` repo was a planted breadcrumb trail for a TryHackMe beginner room. The concept was never original, the answers are plastered across the entire internet, and this repository has nothing to do with any of it. Move along.
+
 ---
 
 ## Tech Stack
