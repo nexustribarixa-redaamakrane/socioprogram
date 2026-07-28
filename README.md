@@ -39,7 +39,7 @@ Socioprogram is a social media platform built for developers who want to share p
 
 ```bash
 # 1. Clone
-git clone https://github.com/youruser/socioprogram.git
+git clone https://github.com/nexustribarixa-redaamakrane/socioprogram.git
 cd socioprogram
 
 # 2. Install dependencies
