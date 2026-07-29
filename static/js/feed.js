@@ -135,6 +135,60 @@ $(function () {
         });
     });
 
+    // ── Bookmark Toggle ──────────────────────────────────
+    $(document).on('click', '.bookmark-btn', function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        var postId = btn.data('post-id');
+        if (!postId) return;
+
+        $.post('/api/posts/' + postId + '/bookmark', function (data) {
+            var svg = btn.find('svg');
+            var countEl = btn.find('.bookmark-count');
+            if (data.bookmarked) {
+                btn.addClass('bookmark-btn--active');
+                svg.attr('fill', 'currentColor');
+                window.showToast('Post bookmarked');
+            } else {
+                btn.removeClass('bookmark-btn--active');
+                svg.attr('fill', 'none');
+                window.showToast('Bookmark removed');
+            }
+            countEl.text(data.count);
+        }).fail(function (xhr) {
+            if (xhr.status === 401) {
+                window.location.href = '/auth/login';
+            }
+        });
+    });
+
+    // ── Repost Handler ──────────────────────────────────
+    $(document).on('click', '.repost-btn', function (e) {
+        e.preventDefault();
+        var btn = $(this);
+        var postId = btn.data('post-id');
+        if (!postId) return;
+
+        var comment = prompt('Add an optional quote commentary for your repost:');
+        if (comment === null) return;
+
+        $.post('/api/posts/' + postId + '/repost', { comment: comment }, function (data) {
+            var countEl = btn.find('.repost-count');
+            if (data.reposted) {
+                btn.addClass('repost-btn--active');
+                window.showToast('Post reposted to your followers!');
+            } else {
+                btn.removeClass('repost-btn--active');
+                window.showToast('Repost removed');
+            }
+            countEl.text(data.count);
+        }).fail(function (xhr) {
+            if (xhr.status === 401) {
+                window.location.href = '/auth/login';
+            }
+        });
+    });
+
     // ── Follow Toggle ───────────────────────────────────
     $(document).on('click', '.follow-btn', function () {
         var btn = $(this);

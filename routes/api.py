@@ -147,6 +147,149 @@ def toggle_follow(user_id):
         return jsonify({'following': True})
 
 
+# ── Bookmarks ────────────────────────────────────────
+
+@api_bp.route('/posts/<int:post_id>/bookmark', methods=['POST'])
+@login_required
+def toggle_bookmark(post_id):
+    from models.social import Bookmark
+    post = Post.query.get_or_404(post_id)
+    existing = Bookmark.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+
+    if existing:
+        db.session.delete(existing)
+        post.bookmark_count = max(0, post.bookmark_count - 1)
+        db.session.commit()
+        return jsonify({'bookmarked': False, 'count': post.bookmark_count})
+    else:
+        bm = Bookmark(post_id=post_id, user_id=current_user.id)
+        db.session.add(bm)
+        post.bookmark_count += 1
+        db.session.commit()
+        return jsonify({'bookmarked': True, 'count': post.bookmark_count})
+
+
+# ── Reposts ──────────────────────────────────────────
+
+@api_bp.route('/posts/<int:post_id>/repost', methods=['POST'])
+@login_required
+def toggle_repost(post_id):
+    from models.social import Repost
+    post = Post.query.get_or_404(post_id)
+    comment = request.form.get('comment', '').strip()
+    existing = Repost.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+
+    if existing and not comment:
+        db.session.delete(existing)
+        post.repost_count = max(0, post.repost_count - 1)
+        db.session.commit()
+        return jsonify({'reposted': False, 'count': post.repost_count})
+    else:
+        if existing:
+            existing.comment = comment
+        else:
+            rp = Repost(post_id=post_id, user_id=current_user.id, comment=comment)
+            db.session.add(rp)
+            post.repost_count += 1
+        db.session.commit()
+
+        if post.author_id != current_user.id:
+            notif = Notification(
+                user_id=post.author_id,
+                type='repost',
+                message=f'@{current_user.username} reposted your post "{post.title[:50]}"',
+                link=f'/post/{post.id}',
+            )
+            db.session.add(notif)
+            db.session.commit()
+
+        return jsonify({'reposted': True, 'count': post.repost_count})
+
+
+# ── Live Instant Search ──────────────────────────────
+
+@api_bp.route('/search/live')
+def live_search():
+    q = request.args.get('q', '').strip()
+    if not q or len(q) < 2:
+        return jsonify({'users': [], 'posts': [], 'tags': []})
+
+    from models.user import User
+    from models.post import Tag
+
+    # Find matching users
+    users = User.query.filter(
+        (User.username.ilike(f'%{q}%')) | (User.display_name.ilike(f'%{q}%'))
+    ).limit(5).all()
+
+    # Find matching posts
+    posts = Post.query.filter(
+        Post.is_removed == False,
+        (Post.title.ilike(f'%{q}%')) | (Post.content.ilike(f'%{q}%')) | (Post.code_snippet.ilike(f'%{q}%'))
+    ).order_by(Post.created_at.desc()).limit(5).all()
+
+    # Find matching tags
+    tags = Tag.query.filter(Tag.name.ilike(f'%{q}%')).limit(5).all()
+
+    return jsonify({
+        'users': [{'username': u.username, 'display_name': u.display_name, 'avatar_url': u.avatar_url} for u in users],
+        'posts': [{'id': p.id, 'title': p.title, 'author': p.author.username, 'post_type': p.post_type} for p in posts],
+        'tags': [{'name': t.name} for t in tags]
+    })
+
+
+# ── Followers / Following Modals Data ────────────────
+
+@api_bp.route('/users/<int:user_id>/followers')
+def get_followers(user_id):
+    from models.user import User
+    user = User.query.get_or_404(user_id)
+    followers_rel = Follow.query.filter_by(following_id=user.id).all()
+    follower_ids = [f.follower_id for f in followers_rel]
+    followers = User.query.filter(User.id.in_(follower_ids)).all() if follower_ids else []
+
+    current_user_following = set()
+    if current_user.is_authenticated:
+        current_user_following = set(
+            f.following_id for f in Follow.query.filter_by(follower_id=current_user.id).all()
+        )
+
+    return jsonify([{
+        'id': u.id,
+        'username': u.username,
+        'display_name': u.display_name,
+        'avatar_url': u.avatar_url,
+        'bio': u.bio[:100],
+        'is_following': u.id in current_user_following,
+        'is_self': current_user.is_authenticated and u.id == current_user.id
+    } for u in followers])
+
+
+@api_bp.route('/users/<int:user_id>/following')
+def get_following(user_id):
+    from models.user import User
+    user = User.query.get_or_404(user_id)
+    following_rel = Follow.query.filter_by(follower_id=user.id).all()
+    following_ids = [f.following_id for f in following_rel]
+    following_users = User.query.filter(User.id.in_(following_ids)).all() if following_ids else []
+
+    current_user_following = set()
+    if current_user.is_authenticated:
+        current_user_following = set(
+            f.following_id for f in Follow.query.filter_by(follower_id=current_user.id).all()
+        )
+
+    return jsonify([{
+        'id': u.id,
+        'username': u.username,
+        'display_name': u.display_name,
+        'avatar_url': u.avatar_url,
+        'bio': u.bio[:100],
+        'is_following': u.id in current_user_following,
+        'is_self': current_user.is_authenticated and u.id == current_user.id
+    } for u in following_users])
+
+
 # ── Reports ──────────────────────────────────────────
 
 @api_bp.route('/report', methods=['POST'])
@@ -205,3 +348,4 @@ def mark_notifications_read():
     ).update({'is_read': True})
     db.session.commit()
     return jsonify({'marked': True})
+

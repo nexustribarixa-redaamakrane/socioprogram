@@ -53,6 +53,34 @@ def seed_rules():
         db.session.commit()
 
 
+def migrate_db():
+    """Ensure missing columns are added to existing SQLite database tables."""
+    with db.engine.connect() as conn:
+        # Check users table columns
+        result = conn.execute(db.text("PRAGMA table_info(users)")).fetchall()
+        user_cols = {row[1] for row in result}
+        for col_name, col_type in [
+            ('banner_path', 'VARCHAR(512) DEFAULT ""'),
+            ('tech_stack', 'VARCHAR(256) DEFAULT ""'),
+            ('website', 'VARCHAR(256) DEFAULT ""'),
+            ('location', 'VARCHAR(128) DEFAULT ""')
+        ]:
+            if col_name not in user_cols:
+                conn.execute(db.text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                conn.commit()
+
+        # Check posts table columns
+        result = conn.execute(db.text("PRAGMA table_info(posts)")).fetchall()
+        post_cols = {row[1] for row in result}
+        for col_name, col_type in [
+            ('bookmark_count', 'INTEGER DEFAULT 0'),
+            ('repost_count', 'INTEGER DEFAULT 0')
+        ]:
+            if col_name not in post_cols:
+                conn.execute(db.text(f"ALTER TABLE posts ADD COLUMN {col_name} {col_type}"))
+                conn.commit()
+
+
 def create_app(config_name=None):
     """Application factory."""
     if config_name is None:
@@ -75,7 +103,7 @@ def create_app(config_name=None):
 
     # Create upload directories
     upload_base = app.config.get('UPLOAD_FOLDER', os.path.join(app.root_path, 'static', 'uploads'))
-    for subdir in ('avatars', 'posts'):
+    for subdir in ('avatars', 'posts', 'banners'):
         path = os.path.join(upload_base, subdir)
         os.makedirs(path, exist_ok=True)
 
@@ -124,9 +152,10 @@ def create_app(config_name=None):
     def server_error(e):
         return render_template('errors/500.html'), 500
 
-    # Create database tables and seed rules
+    # Create database tables, run column migrations and seed rules
     with app.app_context():
         db.create_all()
+        migrate_db()
         seed_rules()
 
     return app

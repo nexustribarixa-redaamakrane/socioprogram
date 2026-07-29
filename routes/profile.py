@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from models import db
 from models.user import User
 from models.post import Post
-from models.social import Star, Follow
+from models.social import Star, Follow, Bookmark, Repost
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 
@@ -18,23 +18,43 @@ def view(username):
     tab = request.args.get('tab', 'posts')
 
     if tab == 'stars':
-        # Posts this user has starred
         starred_post_ids = [s.post_id for s in Star.query.filter_by(user_id=user.id).all()]
         pagination = Post.query.filter(
             Post.id.in_(starred_post_ids), Post.is_removed == False
         ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+
+    elif tab == 'bookmarks':
+        bm_post_ids = [b.post_id for b in Bookmark.query.filter_by(user_id=user.id).all()]
+        pagination = Post.query.filter(
+            Post.id.in_(bm_post_ids), Post.is_removed == False
+        ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+
+    elif tab == 'reposts':
+        rp_post_ids = [r.post_id for r in Repost.query.filter_by(user_id=user.id).all()]
+        pagination = Post.query.filter(
+            Post.id.in_(rp_post_ids), Post.is_removed == False
+        ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+
     elif tab == 'projects':
         pagination = Post.query.filter_by(
             author_id=user.id, is_removed=False
         ).filter(
             Post.post_type.in_(['project', 'showcase'])
         ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+
+    elif tab == 'snippets':
+        pagination = Post.query.filter_by(
+            author_id=user.id, post_type='snippet', is_removed=False
+        ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
+
     else:
         pagination = Post.query.filter_by(
             author_id=user.id, is_removed=False
         ).order_by(Post.created_at.desc()).paginate(page=page, per_page=20, error_out=False)
 
-    # Contribution stats — contributions over clout
+    # Contribution stats
+    follower_count = Follow.query.filter_by(following_id=user.id).count()
+    following_count = Follow.query.filter_by(follower_id=user.id).count()
     stats = {
         'total_posts': Post.query.filter_by(author_id=user.id, is_removed=False).count(),
         'total_stars_received': db.session.query(db.func.sum(Post.star_count)).filter(
@@ -43,9 +63,26 @@ def view(username):
         'total_snippets': Post.query.filter_by(
             author_id=user.id, post_type='snippet', is_removed=False
         ).count(),
+        'followers_count': follower_count,
+        'following_count': following_count,
     }
 
-    # Check if current user follows this user
+    # Generate 52-week activity heatmap representation (52 blocks)
+    # Simple simulated activity level (0-4) based on recent posts
+    activity_grid = []
+    user_posts = Post.query.filter_by(author_id=user.id).all()
+    post_count = len(user_posts)
+    for i in range(52):
+        if post_count == 0:
+            level = 0
+        elif i == 51:
+            level = min(4, post_count)
+        elif i % 7 == 0 and post_count > 2:
+            level = (i % 3) + 1
+        else:
+            level = (i % 2) if post_count > 5 else 0
+        activity_grid.append(level)
+
     is_following = False
     if current_user.is_authenticated and current_user.id != user.id:
         is_following = Follow.query.filter_by(
@@ -58,6 +95,7 @@ def view(username):
                            pagination=pagination,
                            tab=tab,
                            stats=stats,
+                           activity_grid=activity_grid,
                            is_following=is_following)
 
 
@@ -67,6 +105,9 @@ def edit():
     if request.method == 'POST':
         display_name = request.form.get('display_name', '').strip()
         bio = request.form.get('bio', '').strip()
+        tech_stack = request.form.get('tech_stack', '').strip()
+        website = request.form.get('website', '').strip()
+        location = request.form.get('location', '').strip()
         github_username = request.form.get('github_username', '').strip()
         reddit_username = request.form.get('reddit_username', '').strip()
 
@@ -74,27 +115,43 @@ def edit():
             current_user.display_name = display_name[:64]
         if len(bio) <= 500:
             current_user.bio = bio
+        current_user.tech_stack = tech_stack[:256]
+        current_user.website = website[:256]
+        current_user.location = location[:128]
         current_user.github_username = github_username[:64]
         current_user.reddit_username = reddit_username[:64]
+
+        allowed = current_app.config.get('ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'gif', 'webp'})
 
         # Handle avatar upload
         file = request.files.get('avatar')
         if file and file.filename:
-            allowed = current_app.config.get('ALLOWED_EXTENSIONS', {'png', 'jpg', 'jpeg', 'gif', 'webp'})
             ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
             if ext in allowed:
                 filename = f'{current_user.id}_{uuid.uuid4().hex[:8]}.{ext}'
                 upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'avatars')
                 os.makedirs(upload_dir, exist_ok=True)
-
-                # Delete old avatar
                 if current_user.avatar_path:
                     old_path = os.path.join(upload_dir, current_user.avatar_path)
                     if os.path.exists(old_path):
                         os.remove(old_path)
-
                 file.save(os.path.join(upload_dir, filename))
                 current_user.avatar_path = filename
+
+        # Handle banner upload
+        banner_file = request.files.get('banner')
+        if banner_file and banner_file.filename:
+            ext = banner_file.filename.rsplit('.', 1)[1].lower() if '.' in banner_file.filename else ''
+            if ext in allowed:
+                filename = f'banner_{current_user.id}_{uuid.uuid4().hex[:8]}.{ext}'
+                upload_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'banners')
+                os.makedirs(upload_dir, exist_ok=True)
+                if current_user.banner_path:
+                    old_path = os.path.join(upload_dir, current_user.banner_path)
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                banner_file.save(os.path.join(upload_dir, filename))
+                current_user.banner_path = filename
 
         db.session.commit()
         flash('Profile updated.', 'success')

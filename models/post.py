@@ -2,6 +2,28 @@ from datetime import datetime, timezone
 from models import db
 
 
+# Association table for Post <-> Tag
+post_tags = db.Table(
+    'post_tags',
+    db.Column('post_id', db.Integer, db.ForeignKey('posts.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+)
+
+
+class Tag(db.Model):
+    """Hashtag topic for posts."""
+    __tablename__ = 'tags'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True, nullable=False, index=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f'<Tag #{self.id} #{self.name}>'
+
+
 class Post(db.Model):
     """A user-created post or aggregated external content."""
     __tablename__ = 'posts'
@@ -21,6 +43,8 @@ class Post(db.Model):
     # Denormalized counters for performance
     star_count = db.Column(db.Integer, default=0)
     comment_count = db.Column(db.Integer, default=0)
+    bookmark_count = db.Column(db.Integer, default=0)
+    repost_count = db.Column(db.Integer, default=0)
 
     # Moderation
     is_pinned = db.Column(db.Boolean, default=False)
@@ -36,8 +60,13 @@ class Post(db.Model):
                                cascade='all, delete-orphan')
     stars = db.relationship('Star', backref='post', lazy='dynamic',
                             cascade='all, delete-orphan')
+    bookmarks = db.relationship('Bookmark', backref='post', lazy='dynamic',
+                                cascade='all, delete-orphan')
+    reposts = db.relationship('Repost', backref='post', lazy='dynamic',
+                              cascade='all, delete-orphan')
     images = db.relationship('PostImage', backref='post', lazy='dynamic',
                              cascade='all, delete-orphan')
+    tags = db.relationship('Tag', secondary=post_tags, backref=db.backref('posts', lazy='dynamic'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -87,3 +116,4 @@ class PostImage(db.Model):
 
     def __repr__(self):
         return f'<PostImage #{self.id} for Post #{self.post_id}>'
+

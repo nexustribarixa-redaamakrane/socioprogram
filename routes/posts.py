@@ -1,11 +1,12 @@
 import os
+import re
 import uuid
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import bleach
 from models import db
-from models.post import Post
+from models.post import Post, Tag
 from models.comment import Comment
 from models.social import Star
 from models.notification import Notification
@@ -60,6 +61,24 @@ def create():
             file.save(os.path.join(upload_dir, filename))
             screenshot_path = filename
 
+        # Extract hashtags from title, content, and form tags input
+        raw_tags = set(re.findall(r'#(\w+)', title + ' ' + content))
+        custom_tags = request.form.get('tags', '').strip()
+        if custom_tags:
+            for t in custom_tags.split(','):
+                cleaned = t.strip().lstrip('#').lower()
+                if cleaned:
+                    raw_tags.add(cleaned)
+
+        tag_objs = []
+        for tag_name in raw_tags:
+            tag_name_clean = tag_name.lower()[:32]
+            tag_obj = Tag.query.filter_by(name=tag_name_clean).first()
+            if not tag_obj:
+                tag_obj = Tag(name=tag_name_clean)
+                db.session.add(tag_obj)
+            tag_objs.append(tag_obj)
+
         post = Post(
             author_id=current_user.id,
             title=title,
@@ -71,6 +90,7 @@ def create():
             screenshot_path=screenshot_path,
             source='original',
         )
+        post.tags = tag_objs
         db.session.add(post)
         db.session.commit()
 

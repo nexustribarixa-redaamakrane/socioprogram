@@ -15,6 +15,10 @@ class User(UserMixin, db.Model):
     display_name = db.Column(db.String(64), nullable=False)
     bio = db.Column(db.Text, default='')
     avatar_path = db.Column(db.String(512), default='')
+    banner_path = db.Column(db.String(512), default='')
+    tech_stack = db.Column(db.String(256), default='')  # Comma-separated tech tags e.g. "Python, TypeScript, Docker"
+    website = db.Column(db.String(256), default='')
+    location = db.Column(db.String(128), default='')
     github_username = db.Column(db.String(64), default='')
     reddit_username = db.Column(db.String(64), default='')
     role = db.Column(db.String(16), default='user')  # 'user' | 'moderator' | 'admin'
@@ -33,6 +37,10 @@ class User(UserMixin, db.Model):
                                foreign_keys='Comment.author_id')
     notifications = db.relationship('Notification', backref='user', lazy='dynamic',
                                     foreign_keys='Notification.user_id')
+    bookmarks = db.relationship('Bookmark', backref='user', lazy='dynamic',
+                                cascade='all, delete-orphan')
+    reposts = db.relationship('Repost', backref='user', lazy='dynamic',
+                              cascade='all, delete-orphan')
     oauth_accounts = db.relationship('UserOAuth', backref='user', lazy='dynamic')
 
     def __init__(self, **kwargs):
@@ -62,8 +70,19 @@ class User(UserMixin, db.Model):
     def avatar_url(self):
         if self.avatar_path:
             return f'/static/uploads/avatars/{self.avatar_path}'
-        # Default avatar — first letter of username
         return ''
+
+    @property
+    def banner_url(self):
+        if self.banner_path:
+            return f'/static/uploads/banners/{self.banner_path}'
+        return ''
+
+    @property
+    def tech_stack_list(self):
+        if not self.tech_stack:
+            return []
+        return [t.strip() for t in self.tech_stack.split(',') if t.strip()]
 
     def __repr__(self):
         return f'<User @{self.username}>'

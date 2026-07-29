@@ -10,7 +10,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <div class="settings-section">
-        <h2 class="settings-section__title">Profile</h2>
+        <h2 class="settings-section__title">Profile Info</h2>
         <div class="form-group">
             <label for="display_name" class="form-label">Display Name</label>
             <input type="text" id="display_name" name="display_name" class="form-input" value="{{ current_user.display_name }}" maxlength="64">
@@ -18,6 +18,18 @@
         <div class="form-group">
             <label for="bio" class="form-label">Bio <span class="form-optional">(max 500 chars)</span></label>
             <textarea id="bio" name="bio" class="form-textarea" rows="3" maxlength="500">{{ current_user.bio }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="tech_stack" class="form-label">Tech Stack <span class="form-optional">(comma-separated: e.g. Python, React, Docker, Rust)</span></label>
+            <input type="text" id="tech_stack" name="tech_stack" class="form-input" value="{{ current_user.tech_stack }}" placeholder="Python, TypeScript, Docker, PostgreSQL">
+        </div>
+        <div class="form-group">
+            <label for="website" class="form-label">Personal Website / Portfolio</label>
+            <input type="url" id="website" name="website" class="form-input" value="{{ current_user.website }}" placeholder="https://yourportfolio.dev">
+        </div>
+        <div class="form-group">
+            <label for="location" class="form-label">Location</label>
+            <input type="text" id="location" name="location" class="form-input" value="{{ current_user.location }}" placeholder="San Francisco, CA or Remote">
         </div>
         <div class="form-group">
             <label for="avatar" class="form-label">Avatar</label>
@@ -31,6 +43,10 @@
                 </div>
                 <input type="file" id="avatar" name="avatar" accept="image/*" class="form-input">
             </div>
+        </div>
+        <div class="form-group">
+            <label for="banner" class="form-label">Cover Banner Image</label>
+            <input type="file" id="banner" name="banner" accept="image/*" class="form-input">
         </div>
     </div>
 
