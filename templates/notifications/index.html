@@ -13,15 +13,15 @@
     <div class="notification-item {% if not notif.is_read %}notification-item--unread{% endif %}">
         <div class="notification-item__icon">
             {% if notif.type == 'star' %}
-            ⭐
+            ★
             {% elif notif.type == 'comment' %}
-            💬
+            ↩
             {% elif notif.type == 'follow' %}
-            👥
+            +
             {% elif notif.type == 'mod_action' or notif.type == 'warning' %}
-            ⚠️
+            !
             {% else %}
-            🔔
+            •
             {% endif %}
         </div>
         <div class="notification-item__content">
@@ -57,7 +57,7 @@
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-state__icon">🔔</div>
+    <div class="empty-state__icon">—</div>
     <h2 class="empty-state__title">Clear feed</h2>
     <p class="empty-state__text">You are fully up to date. No notifications.</p>
 </div>

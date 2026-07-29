@@ -12,14 +12,14 @@
             Main Feed
             {% endif %}
         </h1>
-        <span class="feed-header__subtitle">Strict Chronological Signal • Anti-Bloat</span>
+        <span class="feed-header__subtitle">chronological</span>
     </div>
     <div class="feed-tabs">
         <a href="{{ url_for('feed.index', filter='all') }}" class="feed-tab {% if filter_type == 'all' and not tag_name %}feed-tab--active{% endif %}">All Posts</a>
-        <a href="{{ url_for('feed.index', filter='projects') }}" class="feed-tab {% if filter_type == 'projects' %}feed-tab--active{% endif %}">🚀 Projects</a>
-        <a href="{{ url_for('feed.index', filter='snippets') }}" class="feed-tab {% if filter_type == 'snippets' %}feed-tab--active{% endif %}">💻 Snippets</a>
-        <a href="{{ url_for('feed.index', filter='discussions') }}" class="feed-tab {% if filter_type == 'discussions' %}feed-tab--active{% endif %}">💬 Discussions</a>
-        <a href="{{ url_for('feed.index', filter='external') }}" class="feed-tab {% if filter_type == 'external' %}feed-tab--active{% endif %}">🌐 GitHub / Reddit</a>
+        <a href="{{ url_for('feed.index', filter='projects') }}" class="feed-tab {% if filter_type == 'projects' %}feed-tab--active{% endif %}">Projects</a>
+        <a href="{{ url_for('feed.index', filter='snippets') }}" class="feed-tab {% if filter_type == 'snippets' %}feed-tab--active{% endif %}">Snippets</a>
+        <a href="{{ url_for('feed.index', filter='discussions') }}" class="feed-tab {% if filter_type == 'discussions' %}feed-tab--active{% endif %}">Discussions</a>
+        <a href="{{ url_for('feed.index', filter='external') }}" class="feed-tab {% if filter_type == 'external' %}feed-tab--active{% endif %}">External</a>
     </div>
 </div>
 
@@ -79,7 +79,7 @@
 
 {% else %}
 <div class="empty-state">
-    <div class="empty-state__icon">📡</div>
+    <div class="empty-state__icon">—</div>
     <h2 class="empty-state__title">No posts found</h2>
     <p class="empty-state__text">Be the first to share something in this topic. No algorithm — pure chronological signal.</p>
     {% if current_user.is_authenticated %}

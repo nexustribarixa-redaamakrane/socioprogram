@@ -1,6 +1,6 @@
 <article class="post-card {% if post.is_pinned %}post-card--pinned{% endif %}" data-post-id="{{ post.id }}" id="post-{{ post.id }}">
     {% if post.is_pinned %}
-    <div class="post-card__pinned">📌 Pinned Post</div>
+    <div class="post-card__pinned">Pinned</div>
     {% endif %}
 
     <div class="post-card__header">
@@ -58,7 +58,6 @@
     {% if post.screenshot_url %}
     <div class="post-card__image lightbox-trigger" data-img-src="{{ post.screenshot_url }}">
         <img src="{{ post.screenshot_url }}" alt="Screenshot preview" loading="lazy">
-        <div class="image-overlay-hint">Click to expand</div>
     </div>
     {% endif %}
 
