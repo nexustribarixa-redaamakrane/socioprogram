@@ -12,4 +12,11 @@ from app import create_app
 application = create_app(os.getenv('FLASK_ENV', 'production'))
 
 if __name__ == '__main__':
-    application.run()
+    try:
+        from waitress import serve
+        host = os.getenv('HOST', '127.0.0.1')
+        port = int(os.getenv('PORT', 5000))
+        print(f"Serving production WSGI app (Waitress) on http://{host}:{port}")
+        serve(application, host=host, port=port)
+    except ImportError:
+        application.run()
